@@ -247,6 +247,8 @@ let g:NERDCommentEmptyLines = 1
 
 " Enable trimming of trailing whitespace when uncommenting
 let g:NERDTrimTrailingWhitespace = 1
+
+map <F4> <leader>ci <CR>
 ```
 ##### [vim-easymotion](https://github.com/easymotion/vim-easymotion)
 1> Installation
