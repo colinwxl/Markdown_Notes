@@ -62,7 +62,7 @@ git branch -D new_branch # remove a branch which not participates in any merging
 `git clone username@host:/path/to/repository`
 
 13. update the local repo from the remote repo:
-`git pull [repository name] [branch name]`
+`git pull [repository name] [branch name]:[local branch]`
 
 14. tracking commits
 ```
@@ -77,7 +77,9 @@ git show [id] # check out what happend (only a little part of the id)
 
 17. 解决合并冲突，冲突经常出现在合并分支或者去拉取别人代码。
 
-18. 配置.gitignore, 在项目根目录创建, 列出不需要提交的文件名、文件夹名, 每个一行  
+18. 配置.gitignore, 在项目根目录创建, 列出不需要提交的文件名、文件夹名, 每个一行
+
+19. 不指明的情况下，远程主机被Git命名为origin。 可通过`git remote -v` 查看。 
 
 ### Management
 1. Installation

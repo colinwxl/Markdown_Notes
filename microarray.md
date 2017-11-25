@@ -13,7 +13,9 @@ ftp://ftp.ncbi.nlm.nih.gov/geo/series/**GSE1nnn**/**GSE1009**/suppl/**GSE1009**_
 * 样本分组信息：
 https://www.ncbi.nlm.nih.gov/geo/browse/?view=samples&search=**GSE51068**&zsort=date&mode=csv&page=undefined&display=5000
 * GPL探针注释文件：
+
 1）ftp://ftp.ncbi.nlm.nih.gov/geo/platforms/**GPL13nnn**/**GPL13667**/soft/**GPL13667**_family.soft.gz
+
 2）https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?mode=raw&is_datatable=true&acc=GPL13667&id=15572&db=GeoDb_blob92
 
 3. ExpressionSet对象：表达矩阵加上样本信息的一个封装

@@ -52,6 +52,8 @@ checking whether PCRE support suffices... configure: error: pcre >= 8.20 library
 > `make install`
 
 6. curl-7.55.1
+error:libcurl>=7.22.0 library and headers are required with support for https
+make sure your curl is not the one under anaconda/miniconda
 
 7. final:
 

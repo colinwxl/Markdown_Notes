@@ -59,6 +59,7 @@ BiocInstaller::biocLite("tibble")
 BiocInstaller::biocLite("DO.db")
 BiocInstaller::biocLite("clusterProfiler")
 ```
+> You might encounter error while installing the dependenced package '**igraph**', like `[foreign-graphml.o] Error 1`, solution: refer to https://github.com/igraph/rigraph/issues/213
 
 ### bir: Biological Id Translator
 ```
