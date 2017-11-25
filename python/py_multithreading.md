@@ -1,8 +1,11 @@
 # python multithreading
-***
+
 <2017-1125> by Colin Wu (colinabc@qq.com)
+
 **Focus on `multithreading`**
+
 **Version: python3.6**
+
 refer to [Python多线程和多进程编程总结](https://tracholar.github.io/wiki/python/python-multiprocessing-tutorial.htm)
 refer to 《core python application programming》 chapter4
 

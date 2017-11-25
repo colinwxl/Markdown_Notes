@@ -1,9 +1,13 @@
 # python multiprocessing
 ***
 <2017-1124> by Colin Wu (colinabc@qq.com)
-**Focus on `multiprocessing`
+
+**Focus** on `multiprocessing`
+
 **Version: python3.6**
+
 refer to [Python多线程和多进程编程总结](https://tracholar.github.io/wiki/python/python-multiprocessing-tutorial.htm)
+
 ## GIL(Global Interpreter Lock)
 > In CPython, the global interpreter lock, or GIL, is a mutex(互斥元) that prevents multiple native threads from executing Python bytecodes at once. This lock is necessary mainly because CPython’s memory management is not thread-safe. (However, since the GIL exists, other features have grown to depend on the guarantees that it enforces.)
 > The mechanism used by the CPython interpreter to assure that only one thread executes Python bytecode at a time. This simplifies the CPython implementation by making the object model (including critical built-in types such as dict) implicitly safe against concurrent access. Locking the entire interpreter makes it easier for the interpreter to be multi-threaded, at the expense of much of the parallelism afforded by multi-processor machines.
