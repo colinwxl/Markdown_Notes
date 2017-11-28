@@ -788,4 +788,200 @@ from lxml import etree
 from io import StringIO, BytesIO
 ```
 ### Parsers
+There is support for parsing both XML and (broken) HTML. Note that XHTML is best parsed as XML. lxml can parse from a local file, an HTTP URL or an FTP URL. It also auto-detects and reads gzip-compressed XML files (.gz).
+```
+xml = '<a xmlns="test"><b xmlns="test"/></a>'
+root = etree.fromstring(xml)
+tree = etree.parse(StringIO(xml))
+etree.tostring(tree.getroot())
+tree = etree.parse("doc/test.xml")
+```
+If you want to parse from memory and still provide a base URL for the document (e.g. to support relative paths in an XInclude), you can pass the `base_url` keyword argument:
+`root = etree.fromstring(xml, base_url="http://where.it/is/from.xml")`
 
+#### Parser options
+Available boolean keyword arguments:
+- `attribute_defaults` - read the DTD (if referenced by the document) and add the default attributes from it
+- `dtd_validation` - validate while parsing (if a DTD was referenced)
+- `load_dtd` - load and parse the DTD while parsing (no validation is performed)
+- `no_network` - prevent network access when looking up external documents (on by default)
+- `ns_clean` - try to clean up redundant namespace declarations
+- `recover` - try hard to parse through broken XML
+- `remove_blank_text` - discard blank text nodes between tags, also known as ignorable whitespace. This is best used together with a DTD or schema (which tells data and noise apart), otherwise a heuristic will be applied.
+- `remove_comments` - discard comments
+- `remove_pis` - discard processing instructions
+- `strip_cdata` - replace CDATA sections by normal text content (on by default)
+- `resolve_entities` - replace entities by their text value (on by default)
+- `huge_tree` - disable security restrictions and support very deep trees and very long text content (only affects libxml2 2.7+)
+- `compact` - use compact storage for short text content (on by default)
+- `collect_ids` - collect XML IDs in a hash table while parsing (on by default). Disabling this can substantially speed up parsing of documents with many different IDs if the hash lookup is not used afterwards.
+Other keyword arguments:
+- `encoding` - override the document encoding
+- `target` - a parser target object that will receive the parse events (see [The target parser interface](http://lxml.de/parsing.html#the-target-parser-interface))
+- `schema` - an XMLSchema to validate against (see [validation](http://lxml.de/validation.html#xmlschema))
+```
+parser = etree.XMLParser(ns_clean=True)
+tree = etree.parse(StringIO(xml), parser)
+etree.tostring(tree.getroot()) # b'<a xmlns="test"><b/></a>'
+``` 
+
+#### Error log
+Parsers have an `error_log` property taht lists the errors and warnings of the last parser run:
+```
+parser = etree.XMLParser()
+print(len(parser.error_log)) # 0
+tree = etree.XML("<root>\n</b>", parser) # raise lxml.etree.XMLSyntaxError
+print(len(parser.error_log)) # 1
+error = parser.error_log[0]
+print(error.message)
+print(error.line) # 2
+print(error.column) # 5
+```
+Each entry in the log has the following properties:
+- `message`: the message text
+- `domain`: the domain ID (see the lxml.etree.ErrorDomains class)
+- `type`: the message type ID (see the lxml.etree.ErrorTypes class)
+- `level`: the log level ID (see the lxml.etree.ErrorLevels class)
+- `line`: the line at which the message originated (if applicable)
+- `column`: the character column at which the message originated (if applicable)
+- `filename`: the name of the file in which the message originated (if applicable)
+For convenience, there are also three properties that provide readable names for the ID values:
+- domain_name
+- type_name
+- level_name
+To filter for a specific kind of message, use the different `filter_*()` methods on the error log (see the lxml.etree._ListErrorLog class).
+
+#### Parsing HTML
+The parsers have a `recover` keyword argument that the HTMLParser sets by default. It lets libxml2 try its best to return a valid HTML tree with all content it can manage to parse. It will not raise an exception on parser errors.
+```
+broken_html = "<html><head><title>test<body><h1>page title</h3>"
+parser = etree.HTMLParser()
+tree = etree.parse(StringIO(broken_html), parser)
+result = etree.tostring(tree.getroot(), pretty_print=True, method="html")
+print(result)
+<html>
+  <head>
+    <title>test</title>
+  </head>
+  <body>
+    <h1>page title</h1>
+  </body>
+</html>
+
+# lxml has a HTML function, similar to the XML shortcut known from ElementTree:
+html = etree.HTML(broken_html)
+result = etree.tostring(html, pretty_print=True, method="html")
+print(result)
+```
+XML forbids double hyphens in comments, which the HTML parser will happily accept in recovery mode.
+
+#### Doctype information
+```
+pub_id = "-//W3C//DTD XHTML 1.0 Transitional//EN"
+sys_url = "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"
+doctype_string = '<!DOCTYPE html PUBLIC "%s" "%s">' % (pub_id, sys_url)
+xml_header = '<?xml version="1.0" encoding="ascii"?>'
+xhtml = xml_header + doctype_string + '<html><body></body></html>'
+tree = etree.parse(StringIO(xhtml))
+docinfo = tree.docinfo
+print(docinfo.public_id) # -//W3C//DTD XHTML 1.0 Transitional//EN
+print(docinfo.system_url) #http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd
+docinfo.doctype == doctype_string # True
+print(docinfo.xml_version) # 1.0
+print(docinfo.encoding) # ascii
+docinfo.system_url = None
+docinfo.public_id = None
+print(etree.tostring(tree))
+<!DOCTYPE html>
+<html><body/></html>
+```
+
+### The target parser interface
+```
+class EchoTarget(object):
+	def start(self, tag, attrib):
+		print("start %s %r" % (tag, dict(attrib)))
+	def end(self, tag):
+		print("end %s" % tag)
+	def data(self, data):
+		print("data %r" % data)
+	def comment(self, text):
+		print("comment %s" % text)
+	def close(self):
+		print("close")
+		return "closed!"
+parser = etree.XMLParser(target = EchoTarget())
+result = etree.XML(XML("<element>some<!--comment-->text</element>", parser)
+start element {}
+data u’some’
+comment comment
+data u’text’
+end element
+close
+
+print(result)
+closed!
+```
+It is important for the `.close()` method to reset the parser target to a usable state, so that you can reuse the parser as often as you like:
+```
+result = etree.XML("<element>some<!--comment-->text</element>", parser)
+print(result)
+```
+The `.close()` method will also be called in the error case.
+Note that the parser does not build a tree when using a parser target.
+```
+parser = etree.XMLParser(target = etree.TreeBuilder())
+result = etree.XML("<element>some<!--comment-->text</element>", parser)
+print(result.tag) # element
+print(result[0].text) # comment
+```
+
+### The feed parser interface
+```
+parser = etree.XMLParser()
+for data in (’<?xml versio’, ’n="1.0"?’, ’><roo’, ’t><a’, ’/></root>’):
+	parser.feed(data)
+root = parser.close() # must
+print(root.tag); print(root[0].tag) 
+```
+The feed parser has its own error log called `feed_error_log`. Errors in the feed parser do not show up in the normal `error_log` and vice versa.
+You can also combine the feed parser interface with the target parser:
+```
+parser = etree.XMLParser(target = EchoTarget())
+parser.feed("<eleme")
+parser.feed("nt>some text</elem")
+start element {}
+data u’some text’
+parser.feed("ent>")
+end element
+result = parser.close()
+close
+print(result)
+closed!
+```
+
+### Incremental event parsing
+```
+parser = etree.XMLPullParser(events=(’start’, ’end’))
+def print_events(parser):
+for action, element in parser.read_events():
+	print(’%s: %s’ % (action, element.tag))
+parser.feed('<root>some text')
+print_events(parser)
+start: root
+print_events(parser) # well, no more events, as before ...
+parser.feed(’<child><a />’)
+print_events(parser)
+start: child
+start: a
+end: a
+parser.feed(’</child></roo’)
+print_events(parser)
+end: child
+parser.feed(’t>’)
+print_events(parser)
+end: root
+root = parser.close()
+etree.tostring(root) # b’<root>some text<child><a/></child></root>’
+```
+#### Event types
