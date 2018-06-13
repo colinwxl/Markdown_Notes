@@ -107,7 +107,7 @@ ssh-keygen -C "colinwuxl@outlook.com" -t rsa
 
 # create an empty "python_function_core" repository in your git hub
 # copy "/c/Users/colinwxl/.ssh/id_rsa.pub" 's content to your github ssh-key
-git -vT git@github.com ## use "git" user instead of yours
+ssh -vT git@github.com ## use "git" user instead of yours
 
 git remote add origin git@github.com:colinwxl:python_function_core.git
 git push origin master

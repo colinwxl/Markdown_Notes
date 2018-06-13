@@ -21,3 +21,5 @@ cat /etc/issue
 sudo lsb_release -a
 uname -r # 内核版本号
 ```
+5. 修改账户密码
+`passwd username`
