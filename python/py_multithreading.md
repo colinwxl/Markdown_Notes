@@ -92,7 +92,7 @@ A condition variable is always associated with some kind of lock; this can be pa
 4. wait_for(predicate, timeout=None)
 5. notify(n=1): By default, wake up one thread waiting on this condition, if any. 
 6. notify_all()
-```
+```python
 queue = []
 
 con = threading.Condition()
