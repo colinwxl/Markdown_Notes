@@ -40,7 +40,7 @@ disable the C compiler optimisations: `CFLAGS="-O0" pip install lxml`
 1. tutorial? [lxml.etree Tutorial](http://lxml.de/tutorial.html); [extended etree API](http://lxml.de/api.html)
 2. implemented standards? http://xmlsoft.org/
 3. bugs reporting?
-```
+```py
 import sys
 from lxml import etree
 print("%-20s: %s" % ('Python', sys.version_info))
@@ -57,7 +57,7 @@ print("%-20s: %s" % ('libxslt compiled', etree.LIBXSLT_COMPILED_VERSION))
 7. `pretty_print` option dose not reformat XML output?
 
 ## Chapter 7 The lxml.etree Tutorial
-```
+```py
 try:
 	from lxml import etree
 	print("running with lxml.etree")
@@ -87,7 +87,7 @@ except ImportError:
 `from lxml import etree`
 
 ### The Element class
-```
+```py
 from lxml import etree
 
 root = etree.Element("root")
@@ -100,7 +100,7 @@ print(etree.tostring(root, pretty_print=True))
 
 ### Elements are like lists
 elements mimic the behaviour of normal Python lists as closely as possible:
-```
+```py
 child = root[0]
 print(child.tag)
 print(len(root))
@@ -115,19 +115,19 @@ root[0] = root[-1] # this moves the element in lxml.etree
 root is root[0].getparent() # Element in lxml.etree has exactly one parent
 ```
 to copy an element to a different position in lxml.etree
-```
+```py
 from copy import deepcopy
 element = etree.Element("neu")
 element.append(deepcopy(root[1]))
 ```
 siblings(or neighbours) of an element are accessed as next and previous elements:
-```
+```py
 root[0] is root[1].getprevious()
 root[1] is root[0].getnext()
 ```
 
 ### Elements carry attributes as a dict
-```
+```py
 root = etree.Element("root", interesting="totally")
 etree.tostring(root) # b’<root interesting="totally"/>’
 print(root.get("interesting"))
@@ -139,25 +139,25 @@ for name, value in sorted(root.items()):
 	print('%s = %r' % (name, value))
 ```
 to get a 'real' dictionary-like object:
-```
+```py
 attributes = root.attrib
 print(attributes["interesting"])
 attributes["hello"] = "Guten Tag"
 print(root.get("hello")) # Guten Tag
 ```
 to get an independent snapshot of the attributes that does not depend on the XML tree, copy it into a dict:
-```
+```py
 d = dict(root.attrib)
 ```
 
 ### Element contain text
-```
+```py
 root = etree.Element("root")
 root.text = "TEXT"
 etree.tostring(root) # b'<root>TEXT</root>'
 ```
 document-style or mixed-content XML:
-```
+```py
 html = etree.Element("html")
 body = etree.SubElement(html, "body")
 body.text = "TEXT"
@@ -167,27 +167,27 @@ etree.tostring(html)
 b'<html><body>TEXT<br/>TAIL</body></html>'
 ```
 do not always want its tail text:
-```
+```py
 etree.tostring(br) # b'<br/>TAIL'
 etree.tostring(br, with_tail=False) # n'<br/>'
 ```
 to read only the text, without any intermediate tags
-```
+```py
 etree.tostring(html, method="text") # b'TEXTTAIL'
 ```
 
 ### Using XPath to find text
-```
+```python
 print(html.xpath("string()")) # TEXTTAIL
 print(html.xpath("//text()")) # ['TEXT', 'TAIL']
 ```
 to wrap Xpath in function:
-```
+```py
 build_text_list = etree.XPath("//text()")
 print(build_text_list(html)) # ['TEXT', 'TAIL']
 ```
 a result returned by XPath is a special 'smart' object that knows about its origins:
-```
+```py
 texts = build_text_list(html)
 print(texts[0]).getparent().tag) # 'body'
 print(texts[1]).getparent().tag) # 'br'
@@ -198,7 +198,7 @@ print(texts[1].is_tail) # True
 this works for results of the `text()` function instead of `string()` or `concat()`
 
 ### Tree iteration
-```
+```python
 root = etree.Element("root")
 etree.SubElement(root, "child").text = "Child 1"
 etree.SubElement(root, "child").text = "Child 2"
@@ -216,7 +216,7 @@ child - Child 2
 another - Child 3
 ```
 By default, iteration yields all nodes in the tree, including ProcessingInstructions, Comments and Entity instances. If you want to make sure only Element objects are returned, you can pass the Element factory as tag parameter:
-```
+```python
 root.append(etree.Entity("#234"))
 root.append(etree.Comment("some comment"))
 for element in root.iter():
@@ -235,7 +235,7 @@ Note that passing a wildcard "*" tag name will also yield all Element nodes (and
 
 ### Serialisation
 Serialisation commonly uses the `tostring()` function that returns a string, or the `ElementTree.write()` method that writes to a file, a file-like object, or a URL (via FTP PUT or HTTP POST). Both calls accept the same keyword arguments like `pretty_print` for formatted output or `encoding` to select a specific output encoding other than plain ASCII:
-```
+```python
 root = etree.XML('<root><a><b/></a></root>')
 etree.tostring(root)
 print(etree.tostring(root, xml_declaration=True))
@@ -243,7 +243,7 @@ print(etree.tostring(root, encoding='iso-8859-1'))
 print(etree.tostring(root, pretty_print=True))
 ```
 You can serialise to HTML or extract the text content by passing the method keyword:
-```
+```python
 root = etree.XML('<html><head/><body><p>Hello<br/>World</p></body></html>')
 etree.tostring(root) # default: method = 'xml'
 etree.tostring(root, method='xml')
@@ -251,9 +251,9 @@ etree.tostring(root, method='html', pretty_print=True)
 etree.tostring(root, method='text') # b'HelloWorld'
 ```
 As for XML serialisation, the default encoding for plain text serialisation is ASCII:
-```
+```python
 br = next(root.iter('br'))
-br.tail = u’W\xf6rld’
+br.tail = u'W\xf6rl'
 etree.tostring(root, method=’text’) # raise UnicodeEncodeError
 etree.tostring(root, method=’text’, encoding="UTF-8") # b’HelloW\xc3\xb6rld’
 # serialising to a Python unicode string instead of a byte string might become handy.
@@ -264,7 +264,7 @@ The W3C has a good article about the [Unicode character set and character encodi
 ### The ElementTree class
 An `ElementTree` is mainly a document wrapper around a tree with a root node. An `ElementTree` is also what you get back when you call the `parse()` function to parse files or file-like
 objects
-```
+```python
 root = etree.XML('''\
 <?xml version="1.0"?>
 <!DOCTYPE root SYSTEM "test" [ <!ENTITY tasty "parsnips"> ]>
@@ -287,14 +287,14 @@ print(etree.tostring(tree.getroot()))
 `lxml.etree` supports parsing XML in a number of ways and from all important sources, namely strings, files, URLs (http/ftp) and file-like objects. The main parse functions are `fromstring()` and `parse()`, both called with the source as first argument.
 
 #### The fromstring() function
-```
+```python
 some_xml_data = "<root>data</root>"
 root = etree.fromstring(some_xml_data)
 print(root.tag); etree.tostring(root)
 ```
 
 #### The XML() funtion
-```
+```python
 root = etree.XML("<root>data</root>")
 root = etree.HTML("<p>data</p>")
 etree.tostring(root) # b'<html><body><p>data</p></body></html>'
@@ -302,7 +302,7 @@ etree.tostring(root) # b'<html><body><p>data</p></body></html>'
 
 #### The parse() function
 As an example of such a file-like object, the following code uses the `BytesIO` class for reading from a string instead of an external file. That class comes from the `io` module in Python 2.6 and later. Note that `parse()` returns an `ElementTree` object, not an `Element` object as the string parser functions. See `help(etree.XMLParser)` to find out about the available parser options.
-```
+```python
 from io import BytesIO
 some_file_or_file_like_object = BytesIO(b"<root>data</root>")
 tree = etree.parse(some_file_or_file_like_object)
@@ -314,13 +314,13 @@ The `parse()` function supports any of the following sources:
 - an HTTP or FTP URL string
 
 #### Parser object
-```
+```python
 parser = etree.XMLParser(remove_blank_text=True)
 root = etree.XML("<root> <a/> <b>  </b> </root>", parser)
 etree.tostring(root) # b'<root><a/><b>  </b></root>'
 ```
 content at leaf elements tends to be data content (even if blank).
-```
+```python
 for element in root.iter("*"):
 	if element.text is not None and not element.text.strip():
 		element.text = None
@@ -329,7 +329,7 @@ etree.tostring(root) # b'<root><a/><b/></root>'
 
 #### Incremental parsing
 `lxml.etree` provides two ways for incremental step-by-step parsing. One is through file-like objects, where it calls the `read()` method repeatedly. This is best used where the data arrives from a source like `urllib` or any other file-like object that can provide data on request. Note that the parser will block and wait until data becomes available in this case:
-```
+```python
 class DataSource:
 	data = [ b"<roo", b"t><", b"a/", b"><", b"/root>" ]
 	def read(self, requested_size):
@@ -340,7 +340,7 @@ class DataSource:
 tree = etree.parse(DataSource())
 ```
 The second way is through a feed parser interface, given by the `feed(data)` and `close()` methods:
-```
+```python
 parser = etree.XMLParser()
 parser.feed("<roo")
 parser.feed("t><")
@@ -350,7 +350,7 @@ parser.feed("/root>")
 root = parser.close()
 ```
 After calling the `close()` method (or when an exception was raised by the parser), you can reuse the parser by calling its `feed()` method again:
-```
+```python
 parser.feed("<root/>")
 root = parser.close()
 etree.tostring(root) # b’<root/>’
@@ -359,19 +359,19 @@ etree.tostring(root) # b’<root/>’
 #### Event-driven parsing
 Sometimes, all you need from a document is a small fraction somewhere deep inside the tree, `lxml.etree` supports this use case with two event-driven parser interfaces, one that generates parser events while building the tree (iterparse), and one that does not build the tree at all, and instead calls feedback methods on a target object in a SAX-like fashion.
 Here is a simple `iterparse()` example:
-```
+```python
 some_file_like = BytesIO(b"<root><a>data</a></root>")
 for event, element in etree.iterparse(some_file_like):
 	print("%s, %4s, %s" % (event, element.tag, element.text))
 ```
 By default, `iterparse()` only generates events when it is done parsing an element, but you can control this through the `events` keyword argument:
-```
+```python
 some_file_like = BytesIO(b"<root><a>data</a></root>")
 for event, element in etree.iterparse(some_file_like, events=("start", "end")):
 	print("%5s, %4s, %s" % (event, element.tag, element.text))
 ```
 It also allows you to `.clear()` or modify the content of an Element to save memory. So if you parse a large tree and you want to keep memory usage small, you should clean up parts of the tree that you no longer need:
-```
+```python
 some_file_like = BytesIO(b"<root><a><b>data</b></a><a><b/></a></root>")
 for event, element in etree.iterparse(some_file_like):
 	if element.tag == 'b':
@@ -381,7 +381,7 @@ for event, element in etree.iterparse(some_file_like):
 		element.clear()
 ```
 use `interparse()` to parsing generated XML files, e.g database dumps.
-```
+```python
 xml_file = BytesIO(b'''\
 <root>
   <a><b>ABC</b><c>abc</c></a>
@@ -393,7 +393,7 @@ for _, element in etree.iterparse(xml_file, tag='a'):
 	element.clear()
 ```
 SAX-like events:
-```
+```python
 class ParserTarget:
 	events = []
 	close_count = 0
@@ -417,7 +417,7 @@ You can reuse the parser and its target as often as you like, so you should take
 
 ### Namespaces
 The ElementTree API avoids [namespace prefixes](http://www.w3.org/TR/xml-names/#ns-qualnames) wherever possible and deploys the real namespace (the URI) instead:
-```
+```python
 xhtml = etree.Element("{http://www.w3.org/1999/xhtml}html")
 body = etree.SubElement(xhtml, "{http://www.w3.org/1999/xhtml}body")
 body.text = "Hello World"
@@ -428,7 +428,7 @@ print(etree.tostring(xhtml, pretty_print=True))
 </html:html>
 ```
 It is common practice to store a namespace URI in a global variable. To adapt the namespace prefixes for serialisation, you can also pass a mapping to the Element factory function, e.g. to define the default namespace:
-```
+```python
 XHTML_NAMESPACE = "http://www.w3.org/1999/xhtml"
 XHTML = "{%s}" % XHTML_NAMESPACE
 NSMAP = {None : XHTML_NAMESPACE} # the default namespace (no prefix)
@@ -440,7 +440,7 @@ b'<html xmlns="http://www.w3.org/1999/xhtml"><body>Hello World</body></html>'
 xhtml.nsmap # {None: 'http://www.w3.org/1999/xhtml'}
 ```
 You can also use the `QName` helper class to build pr split qualified tag names:
-```
+```python
 tag = etree.QName('http://www.w3.org/1999/xhtml', 'html')
 print(tag.localname) # html
 print(tag.namespace) # http://www.w3.org/1999/xhtml
@@ -458,7 +458,7 @@ tag = etree.QName('{http://www.w3.org/1999/xhtml}html', 'script')
 print(tag.text)
 ```
 `.nsmap`:
-```
+```python
 root = etree.Element('root', nsmap={'a': ’http://a.b/c’})
 >>> child = etree.SubElement(root, 'child', nsmap={'b': 'http://b.c/d'})
 len(root.nsmap) # 1
@@ -468,26 +468,26 @@ child.nsmap['b'] # 'http://b.c/d'
 ```
 `lxml.etree` will ensure that the attribute uses a prefixed
 namespace declaration.
-```
+```python
 body.set(XHTML + "bgcolor", "#CCFFAA")
 print(etree.tostring(xhtml, pretty_print=True))
 print(body.get("bgcolor")) # None
 body.get(XHTML + "bgcolor") # '#CCFFAA'
 ```
 use XPath with fully qualified names:
-```
+```python
 find_xhtml_body = etree.ETXPath("//{%s}body" % XHTML_NAMESPACE)
 results = find_xhtml_body(xhtml)
 print(results[0].tag)
 ```
 wildcards "*":
-```
+```python
 for el in xhtml.iter('*'): print(el.tag)
 for el in xhtml.iter('{http://www.w3.org/1999/xhtml}*'): print(el.tag)
 for el in xhtml.iter('{*}body'): print(el.tag)
 ```
 look for elements taht do not have a namespace:
-```
+```python
 [ el.tag for el in xhtml.iter('{http://www.w3.org/1999/xhtml}body') ]
 [ el.tag for el in xhtml.iter('body') ]
 [ el.tag for el in xhtml.iter('{}body') ]
@@ -496,7 +496,7 @@ look for elements taht do not have a namespace:
 
 ### The E-factory
 The `E-factory` provides a simple and compact syntax for generating XML and HTML:
-```
+```python
 from lxml.builder import E
 def CLASS(*args):
 	return {"class": ' '.join(args)}
@@ -518,7 +518,7 @@ html = page = (
 print(etree.tostring(page, pretty_print=True, encoding="unicode"))
 ```
 Element creation based on attribute access makes it easy to build up a simple vocabulary for an XML language:
-```
+```python
 from lxml.builder import ElementMaker
 E = ElementMaker(namespace="http://my.de/fault/namespace", nsmap={'p : "http://my.de/fault/namespace"})
 DOC = E.doc
@@ -548,7 +548,7 @@ The API provides four methods here that you can find on Elements and ElementTree
 - find() efficiently returns only the first match
 - findtext() returns the .text content of the first match
 
-```
+```python
 root = etree.XML("<root><a x='123'>aText<b/><c/><b/></a></root>")
 # find a child of an Element:
 print(root.find("b")) # None
@@ -568,7 +568,7 @@ print(tree.getelementpath(a[2])) # a/b[2]
 tree.find(tree.getelementpath(a[2])) == a[2] # True
 ```
 The .iter() method is a special case that only finds specific tags in the tree by their name, not based on a path.
-```
+```python
 print(root.find(".//b").tag) # b
 print(next(root.iterfind(".//b")).tag) # b
 print(next(root.iter("b")).tag) # b
@@ -589,7 +589,7 @@ the following examples based on: `from lxml import etree`
 
 ### Trees and Documents
 Compared to the original ElementTree API, lxml.etree has an extended tree model. It knows about parents and siblings of elements: `getparent()`; `getnext()`; `getprevious()`
-```
+```python
 root = etree.Element("root")
 a = etree.SubElement(root, "a")
 b = etree.SubElement(root, "b")
@@ -601,18 +601,18 @@ print(b.getnext().tag) # c
 print(c.getprevious().tag) # b
 ```
 You can retrieve an ElementTree for the root node of a document from any of its elements.
-```
+```python
 tree = d.getroottree()
 print(tree.getroot().tag) # root
 ```
 You can use ElementTrees to create XML trees with an explicit root node:
-```
+```python
 tree = etree.ElementTree(d)
 print(tree.getroot().tag) # d
 etree.tostring(tree) # b'<d><e/></d>'
 ```
 The rule is that all operations that are applied to Elements use either the Element itself as reference point, or the absolute root of the document that contains this Element (e.g. for absolute XPath expressions). All operations on an ElementTree use its explicit root node as reference.
-```
+```python
 element = tree.getroot()
 print(element.tag) # d
 print(element.getparent().tag) # root
@@ -620,7 +620,7 @@ print(element.getroottree().getroot().tag) # root
 ```
 
 ### Iteration
-```
+```python
 [ child.tag for child in root ]
 [ el.tag for el in root.iter() ] # tree traversal
 [ child.tag for child in root.iterchildren() ]
@@ -633,7 +633,7 @@ print(element.getroottree().getroot().tag) # root
 All of these iterators support one (or more, since lxml 3.0) additional arguments that filter the generated elements by tag name:
 `[ el.tag for el in root.iter('d', 'a') ]`
 The most common way to traverse an XML tree is depth-first. While there is no dedicated method for breadth-first traversal:
-```
+```python
 root = etree.XML('<root><a><b/><c/></a><d><e/></d></root>')
 print(etree.tostring(root, pretty_print=True, encoding='unicode'))
 queue = deque([root])
@@ -644,7 +644,7 @@ while queue:
 ```
 
 ### Error handling on exceptions
-```
+```python
 etree.clear.clear_error_log()
 broken_xml = '<root><a></root>'
 try:
@@ -670,7 +670,7 @@ print(entry.filename) # <string>
 
 ### Serialisation
 By default, lxml (just as ElementTree) outputs the XML declaration only if it is required by the standard:
-```
+```python
 unicode_root = etree.Element( u"t\u3120st" )
 unicode_root.text = u"t\u0A0Ast"
 etree.tostring(unicode_root, encoding="utf-8")
@@ -682,7 +682,7 @@ print(etree.tostring(unicode_root, encoding="iso-8859-1"))
 ```
 Also see the general remarks on [Unicode support](http://lxml.de/parsing.html#python-unicode-strings).
 You can enable or disable the declaration explicitly by passing another keyword argument for the serialisation:
-```
+```python
 print(etree.tostring(root, xml_declaration=True))
 <?xml version='1.0' encoding='ASCII'?>
 <root><test/></root>
@@ -693,7 +693,7 @@ b'<\x00t\x00 1s\x00t\x00/\x00>\x00'
 ```
 
 ### Incremental XML generation
-```
+```python
 f = BytesIO()
 with etree.xmlfile(f) as xf:
 	with xf.element('abc'):
@@ -701,7 +701,7 @@ with etree.xmlfile(f) as xf:
 
 print(f.getvalue().decode('utf-8')) # <abc>text</abc>
 ```
-```
+```python
 f = BytesIO()
 with etree.xmlfile(f) as xf:
 	with xf.element('abc'):
@@ -716,7 +716,7 @@ with etree.xmlfile(f) as xf:
 print(f.getvalue().decode('utf-8'))
 <abc><in><xyz attr="1"/><xyz attr="2"/><xyz attr="3"/></in></abc>
 ```
-```
+```python
 def writer(out_stream):
     with xmlfile(out_stream) as xf:
         with xf.element('{http://etherx.jabber.org/streams}stream'):
@@ -734,14 +734,14 @@ w.close()
 
 ### CDATA
 By default, lxml's parser will strip CDATA sections from the tree and replace them by their plain text content. You can instruct the parser to leave CDATA sections in the document:
-```
+```python
 parser = etree.XMLParser(strip_cdata=False)
 root = etree.XML('<root><![CDATA[test]]></root>', parser)
 root.text # 'test'
 
 etree.tostring(root) # b'<root><![CDATA[test]]></root>'
 ```
-```
+```python
 root.text = 'test'
 root.text # 'test'
 etree.tostring(root) # b'<root>test</root>'
@@ -753,7 +753,7 @@ etree.tostring(root) # b'<root><![CDATA[test]]></root>'
 
 ### Xinclude and ElemmentInculude
 You can let lxml process xinclude statements in a document by calling the `xinclude()` method on a tree:
-```
+```python
 data = StringIO('''\
 <doc xmlns:xi="http://www.w3.org/2001/XInclude">
 <foo/>
@@ -771,7 +771,7 @@ print(etree.tostring(tree.getroot()))
 
 ### write_c14n on ElementTree
 The lxml.etree.ElementTree class has a method `write_c14n`, which takes a file object as argument. This file object will receive an UTF-8 representation of the canonicalized form of the XML, following the W3C C14N recommendation. For example:
-```
+```python
 f = StringIO('<a><b/></a>')
 tree = etree.parse(f)
 f2 = StringIO()
@@ -783,13 +783,13 @@ print(f2.getvalue().decode("utf-8")) # <a><b></b></a>
 lxml supports one-step parsing as well
 as step-by-step parsing using an event-driven API (currently only for XML).
 The following examples base on:
-```
+```python
 from lxml import etree
 from io import StringIO, BytesIO
 ```
 ### Parsers
 There is support for parsing both XML and (broken) HTML. Note that XHTML is best parsed as XML. lxml can parse from a local file, an HTTP URL or an FTP URL. It also auto-detects and reads gzip-compressed XML files (.gz).
-```
+```python
 xml = '<a xmlns="test"><b xmlns="test"/></a>'
 root = etree.fromstring(xml)
 tree = etree.parse(StringIO(xml))
@@ -819,7 +819,7 @@ Other keyword arguments:
 - `encoding` - override the document encoding
 - `target` - a parser target object that will receive the parse events (see [The target parser interface](http://lxml.de/parsing.html#the-target-parser-interface))
 - `schema` - an XMLSchema to validate against (see [validation](http://lxml.de/validation.html#xmlschema))
-```
+```python
 parser = etree.XMLParser(ns_clean=True)
 tree = etree.parse(StringIO(xml), parser)
 etree.tostring(tree.getroot()) # b'<a xmlns="test"><b/></a>'
@@ -827,7 +827,7 @@ etree.tostring(tree.getroot()) # b'<a xmlns="test"><b/></a>'
 
 #### Error log
 Parsers have an `error_log` property taht lists the errors and warnings of the last parser run:
-```
+```python
 parser = etree.XMLParser()
 print(len(parser.error_log)) # 0
 tree = etree.XML("<root>\n</b>", parser) # raise lxml.etree.XMLSyntaxError
@@ -853,7 +853,7 @@ To filter for a specific kind of message, use the different `filter_*()` methods
 
 #### Parsing HTML
 The parsers have a `recover` keyword argument that the HTMLParser sets by default. It lets libxml2 try its best to return a valid HTML tree with all content it can manage to parse. It will not raise an exception on parser errors.
-```
+```python
 broken_html = "<html><head><title>test<body><h1>page title</h3>"
 parser = etree.HTMLParser()
 tree = etree.parse(StringIO(broken_html), parser)
@@ -876,7 +876,7 @@ print(result)
 XML forbids double hyphens in comments, which the HTML parser will happily accept in recovery mode.
 
 #### Doctype information
-```
+```python
 pub_id = "-//W3C//DTD XHTML 1.0 Transitional//EN"
 sys_url = "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"
 doctype_string = '<!DOCTYPE html PUBLIC "%s" "%s">' % (pub_id, sys_url)
@@ -897,7 +897,7 @@ print(etree.tostring(tree))
 ```
 
 ### The target parser interface
-```
+```python
 class EchoTarget(object):
 	def start(self, tag, attrib):
 		print("start %s %r" % (tag, dict(attrib)))
@@ -913,9 +913,9 @@ class EchoTarget(object):
 parser = etree.XMLParser(target = EchoTarget())
 result = etree.XML(XML("<element>some<!--comment-->text</element>", parser)
 start element {}
-data u’some’
+data u'some'
 comment comment
-data u’text’
+data u'text'
 end element
 close
 
@@ -923,13 +923,13 @@ print(result)
 closed!
 ```
 It is important for the `.close()` method to reset the parser target to a usable state, so that you can reuse the parser as often as you like:
-```
+```python
 result = etree.XML("<element>some<!--comment-->text</element>", parser)
 print(result)
 ```
 The `.close()` method will also be called in the error case.
 Note that the parser does not build a tree when using a parser target.
-```
+```python
 parser = etree.XMLParser(target = etree.TreeBuilder())
 result = etree.XML("<element>some<!--comment-->text</element>", parser)
 print(result.tag) # element
@@ -937,7 +937,7 @@ print(result[0].text) # comment
 ```
 
 ### The feed parser interface
-```
+```python
 parser = etree.XMLParser()
 for data in (’<?xml versio’, ’n="1.0"?’, ’><roo’, ’t><a’, ’/></root>’):
 	parser.feed(data)
@@ -946,7 +946,7 @@ print(root.tag); print(root[0].tag)
 ```
 The feed parser has its own error log called `feed_error_log`. Errors in the feed parser do not show up in the normal `error_log` and vice versa.
 You can also combine the feed parser interface with the target parser:
-```
+```python
 parser = etree.XMLParser(target = EchoTarget())
 parser.feed("<eleme")
 parser.feed("nt>some text</elem")
@@ -961,7 +961,7 @@ closed!
 ```
 
 ### Incremental event parsing
-```
+```python
 parser = etree.XMLPullParser(events=(’start’, ’end’))
 def print_events(parser):
 for action, element in parser.read_events():
@@ -986,7 +986,7 @@ etree.tostring(root) # b’<root>some text<child><a/></child></root>’
 ```
 #### Event types
 The parse events are tuples (event-type, object). The event types supported by ElementTree and lxml.etree are the strings 'start', 'end', 'start-ns' and 'end-ns'. The value of the 'start-ns' event is a tuple (prefix, namespaceURI) that designates the beginning of a prefixnamespace mapping. The 'end-ns' event does not have a value (None).
-```
+```python
 def print_events(events):
 	for action, obj in events:
 		if action in ('start', 'end'):
@@ -1019,7 +1019,7 @@ end: root
 ```
 #### Modifying the tree
 You can modify the element and its descendants when handling the 'end' event.
-```
+```python
 parser = etree.XMLPullParser()
 events = parser.read_events()
 parser.feed('<root><element key="value">text</element>')
@@ -1037,7 +1037,7 @@ root = parser.close()
 etree.tostring(root) # b'<root/>'
 ```
 **WARNING**: During the 'start' event, any content of the element, such as the descendants, following siblings or text, is not yet available and should not be accessed. Only attributes are guaranteed to be set. During the 'end' event, the element and its descendants can be freely modified, but its following siblings should not be accessed. During either of the two events, you must not modify or move the ancestors (parents) of the current element. You should also avoid moving or discarding the element itself. The golden rule is: do not touch anything that will have to be touched again by the parser later on.
-```
+```python
 for event, element in parser.read_events():
 	# ... do something with the element
 	element.clear() # clean up children
@@ -1046,7 +1046,7 @@ for event, element in parser.read_events():
 ```
 
 #### Selective tag events
-```
+```python
 parser = etree.XMLPullParser(tag="element")
 parser.feed('<root><element key="value">text</element>')
 parser.feed('<element><child /></element>')
@@ -1069,7 +1069,7 @@ for action, elem in parser.read_events():
 
 #### Comments and PIs
 The `XMLPullParser` in lxml.etree also supports the event types 'comment' and 'pi' for the respective XML structures.
-```
+```python
 event_types = ("start", "end", "comment", "pi")
 parser = etree.XMLPullParser(event_types)
 parser.feed('<?some pi ?><!-- a comment --><root>')
@@ -1103,7 +1103,7 @@ print(root.tag)
 
 #### Events with custom targets
 You can combine the pull parser with a parser target. In that case, it is the target’s responsibility to generate event values.
-```
+```python
 class Target(object):
 	def start(self, tag, attrib):
 		print('-> start(%s)' % tag)
@@ -1136,7 +1136,7 @@ print(parser.close())
 # CLOSED!
 ```
 You will want to make your custom target inherit from the TreeBuilder class in order to have it build a tree that you can process normally.
-```
+```python
 class AttributeFilter(etree.TreeBuilder):
 	def start(self, tag, attrib):
 		attrib = dict(attrib)
@@ -1155,7 +1155,7 @@ root = parser.close()
 
 ### iterparse and iterwalk
 As known from ElementTree, the `iterparse()` utility function returns an iterator that generates parser events for an XML file (or file-like object), while building the tree.
-```
+```python
 xml = '''
 <root>
 	<element key='value'>text</element>
@@ -1192,7 +1192,7 @@ for action, elem in context:
 
 #### iterwalk
 `interwalk()` works on Elements and ElementTrees. It can iterate over the resulting in-memory tree parsed by `iterparse()`. The `iterwalk` iterator can be instructed to skip over an entire subtree with its `.skip_subtree()` method.
-```
+```python
 root = etree.XML('''
 <root>
 	<a> <b /> </a>
@@ -1230,7 +1230,7 @@ lxml supports XPath 1.0, XSLT 1.0 and the EXSLT extensions through libxml2 and l
 For more about [XPath](http://www.w3school.com.cn/xpath/).
 #### The xpath() method
 For ElementTree, the xpath method performs a global XPath query against the document (if absolute) or against the root node (if relative):
-```
+```python
 f = StringIO('<foo><bar></bar></foo>')
 tree = etree.parse(f)
 r = tree.xpath('/foo/bar')
@@ -1240,7 +1240,7 @@ r = tree.xpath('bar')
 r[0].tag # 'bar'
 ```
 When `xpath()` is used on an Element, the XPath expression is evaluated against the element (if relative) or against the root tree (if absolute):
-```
+```python
 root = tree.getroot()
 r = root.xpath('bar')
 r[0].tag #'bar'
@@ -1254,7 +1254,7 @@ r = tree.xpath('/foo/bar')
 r[0].tag # 'bar'
 ```
 The `xpath()` method has support for XPath variables:
-```
+```python
 expr = "//*[local-name() = $name]"
 print(root.xpath(expr, name = "foo")[0].tag) # foo
 
@@ -1265,7 +1265,7 @@ print(root.xpath("$text", text = "Hello World!")) # Hello World!
 
 #### Namespaces and prefixes
 If your XPath expression uses namespace prefixes, you must define them in a prefix mapping. To this end, pass a dictionary to the namespaces keyword argument that maps the namespace prefixes used in the XPath expression to namespace URIs:
-```
+```python
 f = StringIO('''\
 <a:foo xmlns:a="http://codespeak.net/ns/test1"
        xmlns:b="http://codespeak.net/ns/test2">
@@ -1294,7 +1294,7 @@ XPath string results are 'smart' in that they provide a `getparent()` method tha
 
 You can distinguish between different text origins with the boolean properties is_text, is_tail and is_attribute.
 Note that getparent() may not always return an Element. For example, the XPath functions string() and concat() will construct strings that do not have an origin. For them, getparent() will return None.
-```
+```python
 root = etree.XML("<root><a>TEXT</a></root>")
 find_text = etree.XPath("//text()")
 text = find_text(root)[0]
@@ -1309,7 +1309,7 @@ hasattr(text, 'getparent') # False
 
 #### Generating XPath expressions
 ElementTree objects have a method `getpath(element)`, which returns a structural, absolute XPath expression to find that element:
-```
+```python
 a  = etree.Element("a")
 b  = etree.SubElement(a, "b")
 c  = etree.SubElement(a, "c")
@@ -1323,13 +1323,13 @@ tree.xpath(tree.getpath(d2)) == [d2] # True
 
 #### The `XPath` class
 The `XPath` class compiles an XPath expression into a callable function:
-```
+```python
 root = etree.XML("<root><a><b/></a><b/></root>")
 find = etree.XPath("//b")
 print(find(root)[0].tag) # b
 ```
 Just like the `xpath()` method, the `XPath` class supports XPath variables. Prefix-to-namespace mappings can be passed as second parameter:
-```
+```python
 root = etree.XML("<root xmlns='NS'><a><b/></a><b/></root>")
 find = etree.XPath("//n:b", namespaces={'n':'NS'})
 print(find(root)[0].tag) # {NS}b
@@ -1337,7 +1337,7 @@ print(find(root)[0].tag) # {NS}b
 
 #### Regular expressions in XPath
 By default, XPath supports regular expressions in the [**EXSLT**](http://www.exslt.org/) namespace:
-```
+```python
 regexpNS = "http://exslt.org/regular-expressions"
 find = etree.XPath("//*[re:test(., '^abc$', 'i')]", namespaces={'re':regexpNS})
 
@@ -1347,7 +1347,7 @@ print(find(root)[0].text) # aBc
 
 #### The XPathEvaluator classes
 `lxml.etree` provides two other efficient XPath evaluators that work on ElementTrees or Elements respectively: `XPathDocumentEvaluator` and `XPathElementEvaluator`. They are automatically selected if you use the `XPathEvaluator` helper for instantiation:
-```
+```python
 root = etree.XML("<root><a><b/></a><b/></root>")
 xpatheval = etree.XPathEvaluator(root)
 print(isinstance(xpatheval, etree.XPathElementEvaluator)) # True
@@ -1357,13 +1357,13 @@ print(xpatheval("//b")[0].tag) # b
 #### ETXPath
 One of the main differences between XPath and ElementPath is that the XPath language requires an indirection through prefixes for namespace support, whereas ElementTree uses the Clark notation ({ns}name) to avoid prefixes completely. The other major difference regards the capabilities of both path languages. Where XPath supports various sophisticated ways of restricting the result set through functions and boolean expressions, ElementPath only supports pure path traversal without nesting or further conditions. So, while the ElementPath syntax is self-contained and therefore easier to write and handle, XPath is much more powerful and expressive.
 lxml.etree bridges this gap through the class ETXPath, which accepts XPath expressions with namespaces in Clark notation. It is identical to the XPath class, except for the namespace notation. Normally, you would write:
-```
+```python
 root = etree.XML("<root xmlns='ns'><a><b/></a><b/></root>")
 find = etree.XPath("//p:b", namespaces={'p' : 'ns'})
 print(find(root)[0].tag) # {ns}b
 ```
 ETXPath allows you to change this to:
-```
+```python
 find = etree.ETXPath("//{ns}b")
 print(find(root)[0].tag) # {ns}b
 ```
@@ -1373,7 +1373,7 @@ lxml.etree raises exceptions when errors occur while parsing or evaluating an XP
 
 ### [XSLT](http://www.w3school.com.cn/xsl/)
 lxml.etree introduces a new class, `lxml.etree.XSLT`. The class can be given an ElementTree or Element object to construct an XSLT transformer:
-```
+```python
 xslt_root = etree.XML('''\
 <xsl:stylesheet version="1.0"
 	xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
@@ -1384,7 +1384,7 @@ xslt_root = etree.XML('''\
 transform = etree.XSLT(xslt_root)
 ```
 You can then run the transformation on an ElementTree document by simply calling it, and this results in another ElementTree object:
-```
+```python
 f = StringIO('<a><b>Text</b></a>')
 doc = etree.parse(f)
 result_tree = transform(doc)
@@ -1393,18 +1393,18 @@ By default, XSLT supports all extension functions from libxslt and libexslt as w
 
 #### XSLT result objects
 The result of an XSL transformation can be accessed like a normal ElementTree document:
-```
- root = etree.XML('<a><b>Text</b></a>')
+```python
+root = etree.XML('<a><b>Text</b></a>')
 result = transform(root)
 result.getroot().text # 'Text'
 ```
 but, as opposed to normal ElementTree objects, can also be turned into an (XML or text) string by applying the str() function:
-```
+```python
 str(result)
 # '<?xml version="1.0"?>\n<foo>Text</foo>\n'
 ```
 You can use other encodings at the cost of multiple recoding. Encodings that are not supported by Python will result in an error. While it is possible to use the `.write()` method (known from ElementTree objects) to serialise the XSLT result into a file, it is better to use the `.write_output()` method. The latter knows about the `<xsl:output>` tag and writes the expected data into the output file.
-```
+```python
  xslt_root = etree.XML('''\
 <xsl:stylesheet version="1.0"
 	xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
@@ -1420,7 +1420,7 @@ result.write_output("output.txt.gz", compression=9) # doctest: +SKIP
 
 #### Stylesheet parameters
 It is possible to pass parameters, in the form of XPath expressions, to the XSLT template:
-```
+```python
 xslt_tree = etree.XML('''\
 <xsl:stylesheet version="1.0"
 	xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
@@ -1467,7 +1467,7 @@ str(result)
 
 #### Errors and messages
  XSLT provides an error log that lists messages and error output from the last run. 
-```
+```python
 xslt_root = etree.XML('''\
 <xsl:stylesheet version="1.0"
 	xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
@@ -1507,7 +1507,7 @@ for entry in transform.error_log:
 Note that there is no way in XSLT to distinguish between user messages, warnings and error messages that occurred during the run.
 
 #### The xslt() tree method
-```
+```python
 result = doc.xslt(xslt_tree, a="'A'")
 str(result)
 # '<?xml version="1.0"?>\n<foo>A</foo>\n'
@@ -1525,7 +1525,7 @@ A third thing to remember is the support for [custom extension functions](http:/
 
 #### Profiling
 If you want to know how your stylesheet performed, pass the profile_run keyword to the transform:
-```
+```python
 result = transform(doc, a="/a/b/text()", profile_run=True)
 profile = result.xslt_profile
 
@@ -1534,7 +1534,7 @@ del result.xslt_profile
 
 ## Chapter 12 lxml.objectify
 lxml supports an alternative API similar to the [Amara](http://uche.ogbuji.net/tech/4suite/amara/) bindery or [gnosis.xml.objectify](http://gnosis.cx/download/) through a [custom Element implementation](http://lxml.de/element_classes.html). 
-```
+```python
 from lxml import objectify
 import lxml.usedoctest
 ```
@@ -1574,7 +1574,7 @@ HTML elements have all the methods that come with ElementTree, but also include 
 
 ### Running HTML doctests
 lxml provides the `lxml.doctestcompare` module that supports relaxed comparison of XML and HTML pages and provides a readable diff in the output when a test fails. The HTML comparison is most easily used by importing the `usedoctest` module in a doctest:
-```
+```python
 import lxml.html.usedoctest
 import lxml.html
 html = lxml.html.fromstring('''\
@@ -1588,7 +1588,7 @@ print(lxml.html.tostring(html))
 
 ### Creating HTML with the E-factory
 lxml.html comes with a predefined HTML vocabulary for the [E-factory](http://online.effbot.org/2006_11_01_archive.htm#et-builder).
-```
+```python
 from lxml.html import builder as E
 from lxml.html import usedoctest
 html = E.HTML(
@@ -1662,7 +1662,7 @@ The form itself has these attributes:
 - .method
 
 #### Form Filling Example
-```
+```python
 from lxml.html import fromstring, tostring
 form_page = fromstring('''<html><body><form>
 	Your name: <input type="text" name="name"> <br>
@@ -1706,7 +1706,7 @@ You can submit a form with `lxml.html.submit_form(form_element)`. This will retu
 If you have extra input values you want to pass you can use the keyword argument `extra_values`, like extra_values={'submit': 'Yes!'}. This is the only way to get submit values into the form, as there is no state of "submitted" for these elements.
 You can pass in an alternate opener with the `open_http` keyword argument, which is a function with the signature open_http(method, url, values).
 Example:
-```
+```python
 from lxml.html import parse, submit_form
 page = parse('http://tinyurl.com').getroot()
 page.forms[0].fields['url'] = 'http://lxml.de/'
@@ -1718,7 +1718,7 @@ result = parse(submit_form(page.forms[0])).getroot()
 ### Cleaning uo HTML
 The module lxml.html.clean provides a Cleaner class for cleaning up HTML pages. It supports removing embedded or script content, special tags, CSS style annotations and much more.
 An evil web page:
-```
+```python
 html = '''\
 <html>
   <head>
@@ -1747,7 +1747,7 @@ html = '''\
 </html>'''
 ```
 To remove the all suspicious content from this unparsed document, use the clean_html function:
-```
+```python
 from lxml.html.clean import clean_html
 print(clean_html(html))
 '''
@@ -1765,7 +1765,7 @@ print(clean_html(html))
    <img src="evil!"></body></div>
 ```
 The Cleaner class supports several keyword arguments to control exactly which content is removed:
-```
+```python
 from lxml.html.clean import Cleaner
 cleaner = Cleaner(page_structure=False, links=False)
 print(cleaner.clean_html(html))
@@ -1813,7 +1813,7 @@ See the docstring of Cleaner for the details of what can be cleaned.
 
 #### autolink
 In addition to cleaning up malicious HTML, lxml.html.clean contains functions to do other things to your HTML. This includes autolinking:
-```
+```python
 autolink(doc, ...)
 autolink_html(html, ...)
 ```
@@ -1825,7 +1825,7 @@ The autolink_html() version of the function parses the HTML string first, and re
 
 #### wordwrap
 You can also wrap long words in your html:
-```
+```python
 word_break(doc, max_width=40, ...)
 word_break_html(html, ...)
 ```
@@ -1839,7 +1839,7 @@ word_break_html(html) parses the HTML document and returns a string.
 The module lxml.html.diff offers some ways to visualize differences in HTML documents. 
 There are two ways to view differences: htmldiff and html_annotate. One shows differences with `<ins>` and `<del>`, while the other annotates a set of changes similar to svn blame. Both these functions operate on text, and work best with content fragments (only what goes in <body>), not complete documents.
 Example of htmldiff:
-```
+```python
 from lxml.html.diff import htmldiff, html_annotate
 doc1 = '''<p>Here is some text.</p>'''
 doc2 = '''<p>Here is <b>a lot</b> of <i>text</i>.</p>'''
@@ -1854,7 +1854,7 @@ print(html_annotate([(doc1, 'author1'), (doc2, 'author2'), (doc3, 'author3')]))
    <span title="author2">.</span></p>
 ```
 The `html_annotate` function can also take an optional second argument, `markup`. This is a function like markup(text, version) that returns the given text marked up with the given version. The default version, the output of which you see in the example, looks like:
-```
+```python
 def default_markup(text, version):
     return '<span title="%s">%s</span>' % (
         cgi.escape(unicode(version), 1), text)
@@ -1864,7 +1864,7 @@ def default_markup(text, version):
 #### Microformat Example
 This example parses the [hCard](http://microformats.org/wiki/hcard) microformat.
 First we get the page:
-```
+```python
 import urllib
 from lxml.html import fromstring
 url = 'http://microformats.org/'
@@ -1873,7 +1873,7 @@ doc = fromstring(content)
 doc.make_links_absolute(url)
 ```
 Then we create some objects to put the information in:
-```
+```python
 class Card(object):
 	def __init__(self, **kw):
 		for name, value in kw:
@@ -1883,7 +1883,7 @@ class Phone(object):
 		self.phone, self.types = phone, types
 ```
 And some generally handy functions for microformats:
-```
+```python
 def get_text(el, class_name):
 	els = el.find_class(class_name)
 	if els:
@@ -1899,7 +1899,7 @@ def parse_addresses(el):
 	return el.find_class('adr')
 ```
 Then the parsing:
-```
+```python
 for el in doc.find_class('hcard'):
 	card = Card()
 	card.el = el
@@ -1916,7 +1916,7 @@ Although it started its life in lxml, [**cssselect**](https://cssselect.readthed
 
 ### The CSSSelector class
 The most important class in the `lxml.cssselect` module is `CSSSelector`. It provides the same interface as the XPath class, but accepts a CSS selector expression as input:
-```
+```python
 from lxml.cssselect import CSSSelector
 sel = CSSSelector('div.content')
 sel  #doctest: +ELLIPSIS
@@ -1927,7 +1927,7 @@ sel.path
 # "descendant-or-self::div[@class and contains(concat(' ', normalize-space(@class), ' '), ' content ')]"
 ```
 To use the selector, simply call it with a document or element object:
-```
+```python
 from lxml.etree import fromstring
 h = fromstring('''<div id="outer">
 <div id="inner" class="content body">
@@ -1937,7 +1937,7 @@ h = fromstring('''<div id="outer">
 # ['inner']
 ```
 Using `CSSSelector` is equivalent to translating with cssselect and using the XPath class:
-```
+```python
 from cssselect import GenericTranslator
 from lxml.etree import XPath
 sel = XPath(GenericTranslator().css_to_xpath('div.content'))
@@ -1961,7 +1961,7 @@ lxml interfaces with BeautifulSoup through the `lxml.html.soupparser` module. It
 
 ### Parsing with the soupparser
 The functions fromstring() and parse() behave as known from lxml. The first returns a root Element, the latter returns an ElementTree.
-```
+```python
 tag_soup = '''
 <meta/><head><title>Hello</head><body onload=crash()>Hi all<p>'''
 from lxml.html.soupparser import fromstring
@@ -1982,7 +1982,7 @@ To control how Element objects are created during the conversion of the tree, yo
 
 ### Entity handling
 By default, the BeautifulSoup parser also replaces the entities it finds by their character equivalent.
-```
+```python
 tag_soup = '<body>&copy;&euro;&#45;&#245;&#445;<p>'
 body = fromstring(tag_soup).find('.//body')
 body.text # u'\xa9\u20ac-\xf5\u01bd'
@@ -1995,7 +1995,7 @@ tostring(body, method="html")
 
 ### Using soupparser as a fallback
 The downside of using this parser is that it is much slower than the C implemented HTML parser of libxml2 that lxml uses.
-```
+```python
  tag_soup = '''\
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <html>
@@ -2017,7 +2017,7 @@ except UnicodeDecodeError:
 
 ### Using only the encoding detection
 Even if you prefer lxml's fast HTML parser, you can still benefit from BeautifulSoup's [support for encoding detection](http://www.crummy.com/software/BeautifulSoup/bs4/doc/#unicode-dammit) in the UnicodeDammit class. Once it succeeds in decoding the data, you can simply pass the resulting Unicode string into lxml's parser.
-```
+```python
 try:
 	from bs4 import UnicodeDammit
 	def decode_html(html_string):
@@ -2046,7 +2046,7 @@ lxml can benefit from the parsing capabilities of html5lib through the lxml.html
 
 ### Differences to regular HTML parsing
 html5lib normalizes some elements and element structures to a common format. For example even if a tables does not have a tbody html5lib will inject one automatically:
-```
+```python
 from lxml.html import tostring, html5parser
 tostring(html5parser.fromstring("<table><td>foo"))
 '<table><tbody><tr><td>foo</td></tr></tbody></table>'

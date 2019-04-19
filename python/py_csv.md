@@ -11,7 +11,7 @@ csvfile can be any object which supports the iterator protocol and returns a str
 
 `delimiter=','`; `doublequote=True`; `escapechar=None`; `lineterminator='\r\n'`: the string used to terminate lines produced by the writer; `quotechar='"'`; `quoting=QUOTE_MINIMAL`; `skipinitialspace=False`: when True, whitespace immediately following the delimiter is ignored; `strict=False`: when True, raise exception Error on bad CSV input.
 
-```
+```py
 >>> import csv
 >>> with open('eggs.csv', newline='') as csvfile:
 ...     spamreader = csv.reader(csvfile, delimiter=' ', quotechar='|')
@@ -23,7 +23,7 @@ Spam, Lovely Spam, Wonderful Spam
 
 ### csv.writer(csvfile, dialect='excel', **fmtparams)
 csvfile can be any object with a write() method. If csvfile is a file object, it should be opened with `newline=''`. To make it as easy as possible to interface with modules which implement the DB API, the value None is written as the empty string.
-```
+```py
 import csv
 with open('eggs.csv', 'w', newline='') as csvfile:
     spamwriter = csv.writer(csvfile, delimiter=' ',
@@ -44,7 +44,7 @@ Return the dialect associated with name. An `Error` is raised if name is not a r
 
 ### csv.list_dialect
 Return the names of all registered dialects.
-```
+```py
 >>> csv.list_dialects()
 ['excel', 'excel-tab', 'unix']
 ```
@@ -57,7 +57,7 @@ Create an object that operates like a regular reader but maps the information in
 The fieldnames parameter is a sequence. If fieldnames is omitted, the values in the first row of file f will be used as the fieldnames. Regardless of how the fieldnames are determined, the ordered dictionary preserves their original ordering.
 If a row has more fields than fieldnames, the remaining data is put in a list and stored with the fieldname specified by restkey (which defaults to `None`). If a non-blank row has fewer fields than fieldnames, the missing values are filled-in with None.
 All other optional or keyword arguments are passed to the underlying [reader](https://docs.python.org/3.6/library/csv.html#csv.reader) instance.
-```
+```py
 >>> import csv
 >>> with open('names.csv', newline='') as csvfile:
 ...     reader = csv.DictReader(csvfile)
@@ -73,7 +73,7 @@ OrderedDict([('first_name', 'John'), ('last_name', 'Cleese')])
 
 ### class csv.DictWriter(f, fieldnames, restval='', extrasaction='raise', dialect='excel', *args, **kwds)
 Create an object which operates like a regular writer but maps dictionaries onto output rows. The fieldnames(not optional) parameter is a `sequence` of keys that identify the order in which values in the dictionary passed to the `writerow()` method are written to file f. The optional restval parameter specifies the value to be written if the dictionary is missing a key in fieldnames. If the dictionary passed to the `writerow()` method contains a key not found in fieldnames, the optional extrasaction parameter indicates what action to take. If it is set to `'raise'`, the default value, a `ValueError` is raised. If it is set to `'ignore'`, extra values in the dictionary are ignored. Any other optional or keyword arguments are passed to the underlying `writer` instance.
-```
+```py
 import csv
 
 with open('names.csv', 'w', newline='') as csvfile:
@@ -137,7 +137,7 @@ Methods: `__next__()`; `dialect`; `line_num`; `fieldnames`
 Methods: `writerow(row)`; `writerows(rows)`; `dialect`; `writeheader()`
 
 ## Examples
-```
+```py
 import csv
 with open('passwd', newline='') as f:
     reader = csv.reader(f, delimiter=':', quoting=csv.QUOTE_NONE)
@@ -145,14 +145,14 @@ with open('passwd', newline='') as f:
         print(row)
 ```
 Since `open()` is used to open a CSV file for reading, the file will by default be decoded into unicode using the system default encoding (see [`locale.getpreferredencoding()`](https://docs.python.org/3.6/library/locale.html#locale.getpreferredencoding)). To decode a file using a different encoding, use the encoding argument of open:
-```
+```py
 import csv
 with open('some.csv', newline='', encoding='utf-8') as f:
     reader = csv.reader(f)
     for row in reader:
         print(row)
 ```
-```
+```py
 import csv, sys
 filename = 'some.csv'
 with open(filename, newline='') as f:

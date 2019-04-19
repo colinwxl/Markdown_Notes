@@ -41,7 +41,7 @@ NetworkX graph objects can be created in one of three ways:
 - Importing data from pre-existing (usually file) sources.
 - Adding edges and nodes explicitly.
 
-```
+```python
 import networkx as nx
 G=nx.Graph()
 G.add_edge(1,2) # default edge data=1
@@ -55,7 +55,7 @@ elist=[('a','b',5.0),('b','c',3.0),('a','c',1.0),('c','d',7.3)]
 G.add_weighted_edges_from(elist)
 ```
 use Dijkstra’s algorithm to find the shortest weighted path:
-```
+```python
 G=nx.Graph()
 e=[('a','b',0.3),('b','c',0.9),('a','c',0.5),('c','d',1.2)]
 G.add_weighted_edges_from(e)
@@ -113,7 +113,7 @@ Each of these three dicts can be replaced by a user defined dict-like object. In
 **edge_attr_dict_factory** [function, (default: dict)] Factory function to be used to create the edge attribute dict which holds attrbute values keyed by attribute name. It should require no arguments and return a dict-like object.
 
 Create a graph object that tracks the order nodes are added:
-```
+```py
 from collections import OrderedDict
 class OrderedNodeGraph(nx.Graph):
 	node_dict_factory=OrderedDict
@@ -124,7 +124,7 @@ G.edges()
 [Out]: [(2, 1), (2, 2), (1, 1)]
 ```
 Create a graph object that tracks the order nodes are added and for each node track the order that neighbors are added:
-```
+```py
 class OrderedGraph(nx.Graph):
 	node_dict_factory=OrderedDict
 	adjlist_dict_factory = OrderedDict
@@ -135,7 +135,7 @@ G.edges()
 [Out]: [(2, 2), (2, 1), (1, 1)]
 ```
 Create a low memory graph class that effectively disallows edge attributes by using a single attribute dict for all edges. This reduces the memory used, but you lose edge attributes:
-```
+```py
 class ThinGraph(nx.Graph):
 	all_edge_dict = {'weight': 1}
 	def single_edge_dict(self):
